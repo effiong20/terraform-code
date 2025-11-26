@@ -1,84 +1,66 @@
-resource "aws_launch_template" "my-template" {
-  name = "my-template"
+data "aws_ami" "my-amazon-image" {
+  most_recent = true
+  owners      = ["amazon"]
 
-  block_device_mappings {
-    device_name = "/dev/sdf"
-
-    ebs {
-      volume_size = 20
-    }
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
 
-  capacity_reservation_specification {
-    capacity_reservation_preference = "open"
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
+}
 
-  cpu_options {
-    core_count       = 4
-    threads_per_core = 2
-  }
 
-  credit_specification {
-    cpu_credits = "standard"
-  }
-
-  disable_api_stop        = true
-  disable_api_termination = true
-
-  ebs_optimized = true
-
-  iam_instance_profile {
-    name = "test"
-  }
-
-  image_id = "ami-test"
-
-  instance_initiated_shutdown_behavior = "terminate"
-
-  instance_market_options {
-    market_type = "spot"
-  }
-
+resource "aws_launch_template" "web-template" {
+  name_prefix   = "web-template-"
+  image_id      = data.aws_ami.my-amazon-image.id
   instance_type = "t2.micro"
+  key_name      = "sample-key"
 
-  kernel_id = "test"
+  vpc_security_group_ids = [aws_security_group.Frontend-server-sg.id]
 
-  key_name = "test"
-
-  license_specification {
-    license_configuration_arn = "arn:aws:license-manager:eu-west-1:123456789012:license-configuration:lic-0123456789abcdef0123456789abcdef"
-  }
-
-  metadata_options {
-    http_endpoint               = "enabled"
-    http_tokens                 = "required"
-    http_put_response_hop_limit = 1
-    instance_metadata_tags      = "enabled"
-  }
-
-  monitoring {
-    enabled = true
-  }
-
-  network_interfaces {
-    associate_public_ip_address = true
-  }
-
-  placement {
-    availability_zone = "us-west-2a"
-  }
-
-  ram_disk_id = "test"
-
-  vpc_security_group_ids = ["sg-12345678"]
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    yum update -y
+    yum install -y httpd
+    systemctl start httpd
+    systemctl enable httpd
+    echo "<h1>Web Server ${random_id.server.hex}</h1>" > /var/www/html/index.html
+  EOF
+  )
 
   tag_specifications {
     resource_type = "instance"
-
     tags = {
-      Name = "test"
+      Name = "web-server"
     }
   }
+}
 
-  user_data = filebase64("${path.module}/example.sh")
+resource "aws_autoscaling_group" "web-asg" {
+  name                = "web-asg"
+  vpc_zone_identifier = [aws_subnet.public_subnet[0].id, aws_subnet.public_subnet[1].id]
+  target_group_arns   = [aws_lb_target_group.presentation-target.arn]
+  health_check_type   = "ELB"
+  min_size            = 1
+  max_size            = 3
+  desired_capacity    = 2
+
+  launch_template {
+    id      = aws_launch_template.web-template.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "web-asg-instance"
+    propagate_at_launch = true
+  }
+}
+
+resource "random_id" "server" {
+  byte_length = 4
 }
