@@ -79,13 +79,13 @@ resource "aws_route_table_association" "privat_rt" {
 }
 
 resource "aws_instance" "my-server" {
-#  count = length(var.public_cidr)
-  ami           = "ami-0cae6d6fe6048ca2c"
-  instance_type = "t2.micro"
-  key_name = "sample-key"
-  subnet_id = aws_subnet.public_subnet[0].id
+  #  count = length(var.public_cidr)
+  ami                         = "ami-0cae6d6fe6048ca2c"
+  instance_type               = "t2.micro"
+  key_name                    = "sample-key"
+  subnet_id                   = aws_subnet.public_subnet[0].id
   associate_public_ip_address = true
- # user_data = file("file.sh")
+  # user_data = file("file.sh")
   vpc_security_group_ids = [aws_security_group.Bastian-host-sg.id]
 
   tags = {

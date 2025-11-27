@@ -50,26 +50,26 @@ resource "aws_security_group" "Frontend-alb-sg" {
 
 resource "aws_security_group" "Frontend-server-sg" {
   name        = "Frontend-server-sg"
-  description = "Allow HTTP and SSHtraffic"
+  description = "Allow HTTP SSH traffic"
   vpc_id      = aws_vpc.my-vpc.id
 
   ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    description     = "HTTP"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
     security_groups = [aws_security_group.Frontend-alb-sg.id]
-   
+
   }
- ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+  ingress {
+    description     = "SSH"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
     security_groups = [aws_security_group.Bastian-host-sg.id]
-    
+
   }
- egress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -87,14 +87,14 @@ resource "aws_security_group" "Backend-alb-sg" {
   vpc_id      = aws_vpc.my-vpc.id
 
   ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    description     = "HTTP"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
     security_groups = [aws_security_group.Frontend-server-sg.id]
-   
+
   }
- egress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -112,22 +112,22 @@ resource "aws_security_group" "App-server-sg" {
   vpc_id      = aws_vpc.my-vpc.id
 
   ingress {
-    description = "HTTP"
-    from_port   = 3200
-    to_port     = 3200
-    protocol    = "tcp"
+    description     = "HTTP"
+    from_port       = 3200
+    to_port         = 3200
+    protocol        = "tcp"
     security_groups = [aws_security_group.Backend-alb-sg.id]
-   
+
   }
- ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+  ingress {
+    description     = "SSH"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
     security_groups = [aws_security_group.Bastian-host-sg.id]
-    
+
   }
- egress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -145,22 +145,22 @@ resource "aws_security_group" "DB-sg" {
   vpc_id      = aws_vpc.my-vpc.id
 
   ingress {
-    description = "MYSQL"
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
+    description     = "MYSQL"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
     security_groups = [aws_security_group.App-server-sg.id]
-   
+
   }
- ingress {
-    description = "SSH"
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
+  ingress {
+    description     = "SSH"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
     security_groups = [aws_security_group.Bastian-host-sg.id]
-    
+
   }
- egress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

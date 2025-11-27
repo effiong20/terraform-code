@@ -22,16 +22,7 @@ resource "aws_launch_template" "web-template" {
 
   vpc_security_group_ids = [aws_security_group.Frontend-server-sg.id]
 
-  user_data = base64encode(<<-EOF
-    #!/bin/bash
-    yum update -y
-    yum install -y httpd
-    systemctl start httpd
-    systemctl enable httpd
-    echo "<h1>Web Server ${random_id.server.hex}</h1>" > /var/www/html/index.html
-  EOF
-  )
-
+  user_data = file("file.sh")
   tag_specifications {
     resource_type = "instance"
     tags = {

@@ -8,12 +8,12 @@ output "public_subnet" {
 output "privat_subnet" {
   value = aws_subnet.privat_subnet[*].id
 }
- output "db_endpoint" {
+output "db_endpoint" {
   value = aws_db_instance.my-db.id
-   }
+}
 
 output "db_sg_id" {
- value = aws_security_group.DB-sg.id
+  value = aws_security_group.DB-sg.id
 }
 
 output "frontend-alb-endpoint" {

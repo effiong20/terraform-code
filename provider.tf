@@ -13,10 +13,10 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket         = "php-bucket1100"
-    key            = "production/terraform.tfstate"
-    region         = "us-east-1"
-   # dynamodb_table = "terraform-state-locks"
-    encrypt        = true
+    bucket = "php-bucket1100"
+    key    = "production/terraform.tfstate"
+    region = "us-east-1"
+    # dynamodb_table = "terraform-state-locks"
+    encrypt = true
   }
 }
