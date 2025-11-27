@@ -1,3 +1,4 @@
+#################################################
 resource "aws_security_group" "Bastian-host-sg" {
   name        = "Bastian-host-sg"
   description = "Allow SSH traffic"
