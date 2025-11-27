@@ -22,7 +22,8 @@ resource "aws_launch_template" "web-template" {
 
   vpc_security_group_ids = [aws_security_group.Frontend-server-sg.id]
 
-  user_data = file("file.sh")
+  user_data = filebase64("./file.sh")
+  
   tag_specifications {
     resource_type = "instance"
     tags = {
