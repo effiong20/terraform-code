@@ -1,24 +1,20 @@
 resource "aws_lb_target_group" "presentation-target" {
   name     = "presentation-targe"
-  port     = 80
+  port     = "80"
   protocol = "HTTP"
   health_check {
     enabled  = true
-    interval = 10
+    interval = "10"
     path     = "/"
-    port     = 80
+    port     = "80"
     protocol = "HTTP"
-    timeout  = 5
+    timeout  = "5"
     matcher  = "200"
   }
   vpc_id = aws_vpc.my-vpc.id
 }
 
-#resource "aws_lb_target_group_attachment" "presentation1-target" {
-#  target_group_arn = aws_lb_target_group.presentation-target.arn
-#  target_id        = aws_lb_target_group.presentation-target.id
-# port             = 80
-#}
+
 
 resource "aws_lb" "Frontend-alb" {
   name               = "frontend-alb"

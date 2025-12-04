@@ -1,6 +1,6 @@
-data "aws_ami" "my-amazon-image" {
+data "aws_ami" "amazon_linux" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["amazon"] # Amazon's official AMI owner ID
 
   filter {
     name   = "name"
@@ -8,21 +8,21 @@ data "aws_ami" "my-amazon-image" {
   }
 
   filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
 
 
 resource "aws_launch_template" "web-template" {
   name_prefix   = "web-template-"
-  image_id      = data.aws_ami.my-amazon-image.id
+  image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
   key_name      = "sample-key"
 
   vpc_security_group_ids = [aws_security_group.Frontend-server-sg.id]
 
-  user_data = filebase64("./file.sh")
+  user_data = filebase64("file.sh")
   
   tag_specifications {
     resource_type = "instance"
@@ -37,7 +37,7 @@ resource "aws_autoscaling_group" "web-asg" {
   vpc_zone_identifier = [aws_subnet.public_subnet[0].id, aws_subnet.public_subnet[1].id]
   target_group_arns   = [aws_lb_target_group.presentation-target.arn]
   health_check_type   = "ELB"
-  min_size            = 1
+  min_size            = 2
   max_size            = 3
   desired_capacity    = 2
 
@@ -53,6 +53,6 @@ resource "aws_autoscaling_group" "web-asg" {
   }
 }
 
-resource "random_id" "server" {
-  byte_length = 4
-}
+#resource "random_id" "server" {
+ # byte_length = 4
+#}
